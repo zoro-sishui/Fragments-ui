@@ -40,6 +40,15 @@ function formatUser(user) {
   };
 }
 
+
+export async function signOut() {
+  const clientId = "4kk051vpb4itnl8k2237i0ogvb";
+  const cognitoDomain = "https://us-east-15h83huaqe.auth.us-east-1.amazoncognito.com";
+  const logoutUri = window.location.origin; 
+
+  window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+}
+
 export async function getUser() {
   // First, check if we're handling a signin redirect callback (e.g., is ?code=... in URL)
   if (window.location.search.includes('code=')) {
