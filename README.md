@@ -25,7 +25,7 @@ This is the frontend UI for the Fragments microservice project.
    ```
 3. Create a `.env` file with the following variables:
    ```env
-   API_URL=http://localhost:8080
+   API_URL=http://localhost:8080 // use ur ec2 public dns
    AWS_COGNITO_POOL_ID=your_cognito_pool_id
    AWS_COGNITO_CLIENT_ID=your_cognito_client_id
    OAUTH_SIGN_IN_REDIRECT_URL=http://localhost:1234
