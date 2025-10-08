@@ -1,7 +1,16 @@
 // src/api.js
 
 // fragments microservice API to use, defaults to localhost:8080 if not set in env
-const apiUrl = process.env.API_URL || 'http://localhost:8080';
+// Handle cases where process.env might not be available in browser
+let apiUrl;
+try {
+  apiUrl = process.env.API_URL || 'http://localhost:8080';
+} catch (e) {
+  apiUrl = 'http://localhost:8080';
+}
+
+// Export apiUrl for use in other modules
+export { apiUrl };
 
 /**
  * Given an authenticated user, request all fragments for this user from the
@@ -12,6 +21,8 @@ export async function getUserFragments(user) {
   console.log('Requesting user fragments data...');
   try {
     const fragmentsUrl = new URL('/v1/fragments', apiUrl);
+    // Added pand=1 to get full fragment objects instead of just IDs
+    fragmentsUrl.searchParams.set('expand', '1');
     const res = await fetch(fragmentsUrl, {
       // Generate headers with the proper Authorization bearer token to pass.
       // We are using the `authorizationHeaders()` helper method we defined
@@ -26,5 +37,92 @@ export async function getUserFragments(user) {
     return data;
   } catch (err) {
     console.error('Unable to call GET /v1/fragment', { err });
+  }
+}
+
+/**
+ * Create a new fragment for an authenticated user
+ */
+export async function createFragment(user, content, contentType) {
+  console.log('Creating new fragment...', { contentType, size: content.length });
+  try {
+    const fragmentsUrl = new URL('/v1/fragments', apiUrl);
+    console.log('POST request to:', fragmentsUrl.toString());
+    
+    const res = await fetch(fragmentsUrl, {
+      method: 'POST',
+      headers: {
+        ...user.authorizationHeaders(),
+        'Content-Type': contentType,
+      },
+      body: content,
+    });
+    
+    console.log('Response status:', res.status, res.statusText);
+    console.log('Response headers:', Object.fromEntries(res.headers.entries()));
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error('Error response body:', errorText);
+      throw new Error(`${res.status} ${res.statusText}: ${errorText}`);
+    }
+    
+    const data = await res.json();
+    console.log('Successfully created fragment', { data });
+    
+    // Verify Location header is present (required by spec)
+    const locationHeader = res.headers.get('Location');
+    if (locationHeader) {
+      console.log('Location header:', locationHeader);
+    }
+    
+    return data;
+  } catch (err) {
+    console.error('Unable to create fragment', { err });
+    throw err;
+  }
+}
+
+/**
+ * Get detailed fragment data for a specific fragment ID
+ */
+export async function getFragment(user, fragmentId) {
+  console.log('Getting fragment data...');
+  try {
+    const fragmentUrl = new URL(`/v1/fragments/${fragmentId}`, apiUrl);
+    const res = await fetch(fragmentUrl, {
+      headers: user.authorizationHeaders(),
+    });
+    if (!res.ok) {
+      throw new Error(`${res.status} ${res.statusText}`);
+    }
+    const data = await res.text();
+    console.log('Successfully got fragment data', { data });
+    return data;
+  } catch (err) {
+    console.error('Unable to get fragment', { err });
+    throw err;
+  }
+}
+
+/**
+ * Delete a fragment for an authenticated user
+ */
+export async function deleteFragment(user, fragmentId) {
+  console.log('Deleting fragment...');
+  try {
+    const fragmentUrl = new URL(`/v1/fragments/${fragmentId}`, apiUrl);
+    const res = await fetch(fragmentUrl, {
+      method: 'DELETE',
+      headers: user.authorizationHeaders(),
+    });
+    if (!res.ok) {
+      throw new Error(`${res.status} ${res.statusText}`);
+    }
+    console.log('Successfully deleted fragment');
+    return true;
+  } catch (err) {
+    console.error('Unable to delete fragment', { err });
+    throw err;
   }
 }

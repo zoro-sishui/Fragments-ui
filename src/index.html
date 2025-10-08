@@ -4,6 +4,70 @@
     <meta charset="utf-8" />
     <title>Fragments UI</title>
     <link rel="stylesheet" href="https://unpkg.com/bamboo.css" />
+    <style>
+      #create-fragment, #fragments-list {
+        background: var(--b-bg-2);
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+      }
+      
+      #create-fragment-form div {
+        margin-bottom: 15px;
+      }
+      
+      #create-fragment-form label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      
+      #create-fragment-form select,
+      #create-fragment-form textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid var(--b-line);
+        border-radius: 4px;
+        font-family: inherit;
+      }
+      
+      #create-fragment-form textarea {
+        resize: vertical;
+        min-height: 120px;
+      }
+      
+      .fragment-item {
+        background: var(--b-bg-1);
+        border: 1px solid var(--b-line);
+        margin: 10px 0;
+        padding: 15px;
+        border-radius: 5px;
+      }
+      
+      .fragment-actions {
+        margin-top: 10px;
+      }
+      
+      .fragment-actions button {
+        margin-right: 10px;
+        margin-bottom: 5px;
+      }
+      
+      .delete-btn {
+        background-color: #d32f2f !important;
+        color: white !important;
+      }
+      
+      .fragment-content {
+        margin-top: 10px;
+        background: #f5f5f5;
+        padding: 10px;
+        border-radius: 3px;
+        white-space: pre-wrap;
+        font-family: var(--b-font-mono);
+        border: 1px solid var(--b-line);
+      }
+    </style>
     <script type="module" src="app.js"></script>
   </head>
   <body>
@@ -16,6 +80,38 @@
     </section>
     <section hidden id="user">
       <h2>Hello <span class="username"></span>!</h2>
+      
+      <!-- Fragment Creation Section -->
+      <section id="create-fragment">
+        <h3>Create a New Fragment</h3>
+        <form id="create-fragment-form">
+          <div>
+            <label for="fragment-type">Content Type:</label>
+            <select id="fragment-type" required>
+              <option value="text/plain">Text (Plain)</option>
+              <option value="text/markdown">Markdown</option>
+              <option value="text/html">HTML</option>
+              <option value="application/json">JSON</option>
+            </select>
+          </div>
+          <div>
+            <label for="fragment-content">Content:</label>
+            <textarea id="fragment-content" rows="6" cols="50" placeholder="Enter your fragment content here..." required></textarea>
+          </div>
+          <button type="submit">Create Fragment</button>
+          <button type="button" id="clear-form">Clear</button>
+        </form>
+        <div id="create-result" style="margin-top: 10px;"></div>
+      </section>
+
+      <!-- Fragment List Section -->
+      <section id="fragments-list">
+        <h3>Your Fragments</h3>
+        <div id="fragments-container">
+          <p>Loading fragments...</p>
+        </div>
+        <button id="refresh-fragments">Refresh Fragments</button>
+      </section>
     </section>
   </body>
 </html>
