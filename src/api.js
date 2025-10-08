@@ -68,7 +68,7 @@ export async function createFragment(user, content, contentType) {
     const data = await res.json();
     console.log('Successfully created fragment', { data });
     
-    // Verify Location header is present (required by spec)
+    // Location header
     const locationHeader = res.headers.get('Location');
     if (locationHeader) {
       console.log('Location header:', locationHeader);

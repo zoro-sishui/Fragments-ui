@@ -3,7 +3,7 @@
 import { signIn, getUser, signOut } from './auth';
 import { getUserFragments, createFragment, getFragment, apiUrl } from './api';
 
-// Global user variable to be used in event handlers
+// Global user variable
 let currentUser = null;
 
 async function displayFragments(user) {
@@ -26,7 +26,7 @@ async function displayFragments(user) {
       fragmentDiv.className = 'fragment-item';
       
       fragmentDiv.innerHTML = `
-        <div><strong>ID:</strong> <code>${fragment.id}</code></div>
+        <div><strong>ID:</strong> ${fragment.id}</div>
         <div><strong>Type:</strong> ${fragment.type}</div>
         <div><strong>Size:</strong> ${fragment.size} bytes</div>
         <div><strong>Created:</strong> ${new Date(fragment.created).toLocaleString()}</div>
@@ -45,7 +45,7 @@ async function displayFragments(user) {
   }
 }
 
-// Make functions global so they can be called from HTML onclick
+// making functions global
 window.viewFragment = async function(fragmentId) {
   const contentDiv = document.querySelector(`#content-${fragmentId}`);
   console.log('Content div found:', contentDiv);
@@ -55,7 +55,7 @@ window.viewFragment = async function(fragmentId) {
     console.log('Fragment content retrieved:', content);
     console.log('Content length:', content.length);
     
-    // Create a visible container with explicit styling
+    // Create a continer
     const contentContainer = document.createElement('div');
     contentContainer.style.cssText = `
       background: #f8f9fa; 
@@ -69,7 +69,7 @@ window.viewFragment = async function(fragmentId) {
       color: #333;
     `;
     
-    // Set the text content
+    
     contentContainer.textContent = content || '[Empty content]';
     
     // Clear and append
@@ -82,8 +82,6 @@ window.viewFragment = async function(fragmentId) {
     console.error('Error viewing fragment:', err);
   }
 };
-
-// Delete functionality removed - not required for Assignment 1
 
 async function init() {
   // Get our UI elements
@@ -124,10 +122,10 @@ async function init() {
       // Show simple success message
       resultDiv.innerHTML = `
         <div style="color: green; padding: 10px; background: #d4edda; border-radius: 4px;">
-          <strong>✅ Fragment Created Successfully!</strong><br>
-          <strong>ID:</strong> <code>${result.fragment.id}</code><br>
-          <strong>Size:</strong> ${result.fragment.size} bytes<br>
-          <strong>Type:</strong> ${result.fragment.type}
+          <strong>Fragment Created Successfully!</strong><br>
+          <strong>ID:</strong> ${result.fragment.id}<br>
+          <strong>Size: ${result.fragment.size} bytes<br>
+          <strong>Type: ${result.fragment.type}
         </div>
       `;
       
@@ -153,7 +151,7 @@ async function init() {
     document.querySelector('#create-result').innerHTML = '';
   };
 
-  // See if we're signed in (i.e., we'll have a `user` object)
+  // See if we're signed in 
   const user = await getUser();
   if (!user) {
     return;
@@ -170,11 +168,11 @@ async function init() {
 
   // Disable the Login button
   loginBtn.disabled = true;
-  logoutBtn.hidden = false;
+  logoutBtn.hidden = true;
 
   // Load and display user fragments
   await displayFragments(user);
 }
 
-// Wait for the DOM to be ready, then start the app
+// Wait for the DOM to be ready
 addEventListener('DOMContentLoaded', init);
