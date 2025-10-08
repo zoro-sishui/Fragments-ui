@@ -91,11 +91,10 @@ async function init() {
   const loginBtn = document.querySelector('#login');
   const logoutBtn = document.querySelector('#logout');
   const createForm = document.querySelector('#create-fragment-form');
-  const refreshBtn = document.querySelector('#refresh-fragments');
 
-  // Wire up event handlers to deal with login and logout.
+  //  event handlers to deal with login and logout.
   loginBtn.onclick = () => {
-    // Sign-in via the Amazon Cognito Hosted UI (requires redirects), see:
+    // Sign-in via the Amazon Cognito Hosted UI 
     signIn();
   };
 
@@ -135,12 +134,12 @@ async function init() {
       // Clear the form
       document.querySelector('#fragment-content').value = '';
       
-      // Refresh the fragments list
+      // Display the fragments list
       await displayFragments(currentUser);
     } catch (err) {
       resultDiv.innerHTML = `
         <div style="color: red; padding: 10px; background: #f8d7da; border-radius: 4px;">
-          <strong>❌ Error creating fragment</strong><br>
+          <strong> Error creating fragment</strong><br>
           ${err.message || 'Please try again.'}
         </div>
       `;
@@ -152,11 +151,6 @@ async function init() {
   document.querySelector('#clear-form').onclick = () => {
     document.querySelector('#fragment-content').value = '';
     document.querySelector('#create-result').innerHTML = '';
-  };
-
-  // Handle refresh button
-  refreshBtn.onclick = () => {
-    displayFragments(currentUser);
   };
 
   // See if we're signed in (i.e., we'll have a `user` object)
