@@ -10,9 +10,20 @@
         padding: 20px;
         margin: 20px 0;
         border-radius: 8px;
+        width: 100%;
+        max-width: none;
+      }
+      
+      #fragments-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        width: 100%;
+        justify-content: flex-start;
       }
       
       #create-fragment-form div {
+        width:100%;
         margin-bottom: 15px;
       }
       
@@ -39,33 +50,93 @@
       .fragment-item {
         background: var(--b-bg-1);
         border: 1px solid var(--b-line);
-        margin: 10px 0;
         padding: 15px;
         border-radius: 5px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        flex: 1 1 300px;
+        min-width: 300px;
+        max-width: 500px;
       }
       
       .fragment-actions {
-        margin-top: 10px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
       }
       
       .fragment-actions button {
-        margin-right: 10px;
-        margin-bottom: 5px;
+        flex-shrink: 0;
       }
       
       .delete-btn {
-        background-color: #d32f2f !important;
-        color: white !important;
+        background-color: red;
+        color: white;
       }
       
       .fragment-content {
-        margin-top: 10px;
         background: #f5f5f5;
         padding: 10px;
         border-radius: 3px;
         white-space: pre-wrap;
         font-family: var(--b-font-mono);
         border: 1px solid var(--b-line);
+        width: 100%;
+        max-width: none;
+        overflow-x: auto;
+        min-height: 150px;
+        box-sizing: border-box;
+        flex: 1;
+      }
+      
+      .fragment-header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: center;
+        padding: 10px;
+        background: var(--b-bg-2);
+        border-radius: 5px;
+        border: 1px solid var(--b-line);
+      }
+      
+      .fragment-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        align-items: center;
+        width: 100%;
+      }
+      
+      .fragment-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        font-size: 0.9em;
+        color: var(--b-txt-2);
+        width: 100%;
+        justify-content: flex-start;
+      }
+      
+      .fragment-detail {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+        min-width: fit-content;
+        flex: 0 0 auto;
+        padding: 5px 10px;
+        background: var(--b-bg);
+        border-radius: 4px;
+        border: 1px solid var(--b-line);
+      }
+      
+      .fragment-detail strong {
+        color: var(--b-txt);
+        font-weight: 600;
       }
     </style>
     <script type="module" src="app.js"></script>
@@ -89,14 +160,11 @@
             <label for="fragment-type">Content Type:</label>
             <select id="fragment-type" required>
               <option value="text/plain">Text (Plain)</option>
-              <option value="text/markdown">Markdown</option>
-              <option value="text/html">HTML</option>
-              <option value="application/json">JSON</option>
             </select>
           </div>
           <div>
             <label for="fragment-content">Content:</label>
-            <textarea id="fragment-content" rows="6" cols="50" placeholder="Enter your fragment content here..." required></textarea>
+            <textarea id="fragment-content" rows="6" cols="50" placeholder="Enter content here..." required></textarea>
           </div>
           <button type="submit">Create Fragment</button>
           <button type="button" id="clear-form">Clear</button>

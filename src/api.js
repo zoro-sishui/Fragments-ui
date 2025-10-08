@@ -24,9 +24,7 @@ export async function getUserFragments(user) {
     // get the full fragments object.
     fragmentsUrl.searchParams.set('expand', '1');
     const res = await fetch(fragmentsUrl, {
-      // Generate headers with the proper Authorization bearer token to pass.
-      // We are using the `authorizationHeaders()` helper method we defined
-      // earlier, to automatically attach the user's ID token.
+      
       headers: user.authorizationHeaders(),
     });
     if (!res.ok) {
@@ -105,5 +103,3 @@ export async function getFragment(user, fragmentId) {
   }
 }
 
-// DELETE functionality not required for Assignment 1
-// Will be implemented in future assignments
