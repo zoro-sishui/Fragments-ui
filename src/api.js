@@ -21,7 +21,7 @@ export async function getUserFragments(user) {
   console.log('Requesting user fragments data...');
   try {
     const fragmentsUrl = new URL('/v1/fragments', apiUrl);
-    // Added pand=1 to get full fragment objects instead of just IDs
+    // get the full fragments object.
     fragmentsUrl.searchParams.set('expand', '1');
     const res = await fetch(fragmentsUrl, {
       // Generate headers with the proper Authorization bearer token to pass.
@@ -105,24 +105,5 @@ export async function getFragment(user, fragmentId) {
   }
 }
 
-/**
- * Delete a fragment for an authenticated user
- */
-export async function deleteFragment(user, fragmentId) {
-  console.log('Deleting fragment...');
-  try {
-    const fragmentUrl = new URL(`/v1/fragments/${fragmentId}`, apiUrl);
-    const res = await fetch(fragmentUrl, {
-      method: 'DELETE',
-      headers: user.authorizationHeaders(),
-    });
-    if (!res.ok) {
-      throw new Error(`${res.status} ${res.statusText}`);
-    }
-    console.log('Successfully deleted fragment');
-    return true;
-  } catch (err) {
-    console.error('Unable to delete fragment', { err });
-    throw err;
-  }
-}
+// DELETE functionality not required for Assignment 1
+// Will be implemented in future assignments

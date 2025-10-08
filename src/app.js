@@ -1,7 +1,7 @@
 // src/app.js
 
 import { signIn, getUser, signOut } from './auth';
-import { getUserFragments, createFragment, getFragment, deleteFragment, apiUrl } from './api';
+import { getUserFragments, createFragment, getFragment, apiUrl } from './api';
 
 // Global user variable to be used in event handlers
 let currentUser = null;
