@@ -166,9 +166,9 @@ async function init() {
   // Show the user's username
   userSection.querySelector('.username').innerText = user.username;
 
-  // Disable the Login button
-  loginBtn.disabled = true;
-  logoutBtn.hidden = true;
+  // Hide the Login button and show Logout button
+  loginBtn.hidden = true;
+  logoutBtn.hidden = false;
 
   // Load and display user fragments
   await displayFragments(user);
