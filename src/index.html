@@ -6,10 +6,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css" />
     <style>
       #create-fragment, #fragments-list {
-        background: black;
+        background: #333;
         padding: 20px;
         margin: 20px 0;
-        border-radius: 8px;
+        border-radius: 5px;
+        border: 1px solid #555;
         width: 100%;
         max-width: none;
       }
@@ -48,8 +49,8 @@
       }
       
       .fragment-item {
-        background: var(--b-bg-1);
-        border: 1px solid var(--b-line);
+        background: #444;
+        border: 1px solid #666;
         padding: 15px;
         border-radius: 5px;
         box-sizing: border-box;
@@ -73,23 +74,33 @@
       }
       
       .delete-btn {
-        background-color: red;
+        background-color: #d32f2f;
         color: white;
       }
       
       .fragment-content {
-        background: #f5f5f5;
+        background: #222;
         padding: 10px;
         border-radius: 3px;
         white-space: pre-wrap;
-        font-family: var(--b-font-mono);
-        border: 1px solid var(--b-line);
+        font-family: monospace;
+        border: 1px solid #555;
         width: 100%;
         max-width: none;
         overflow-x: auto;
         min-height: 150px;
         box-sizing: border-box;
         flex: 1;
+      }
+      
+      /* Success message styling */
+      #create-result {
+        margin-top: 15px;
+        padding: 15px;
+        border-radius: 5px;
+        background: #333;
+        color: black;
+        border: 1px solid #555;
       }
       
       .fragment-header {
@@ -152,9 +163,9 @@
     <section hidden id="user">
       <h2>Hello <span class="username"></span>!</h2>
       
-      <!-- Fragment Creation Section -->
+      <!-- Content Creation Section -->
       <section id="create-fragment">
-        <h3>Create a New Fragment</h3>
+        <h3>Create New Item</h3>
         <form id="create-fragment-form">
           <div>
             <label for="fragment-type">Content Type:</label>
@@ -166,15 +177,15 @@
             <label for="fragment-content">Content:</label>
             <textarea id="fragment-content" rows="6" cols="50" placeholder="Enter content here..." required></textarea>
           </div>
-          <button type="submit">Create Fragment</button>
+          <button type="submit">Create Item</button>
           <button type="button" id="clear-form">Clear</button>
         </form>
         <div id="create-result" style="margin-top: 10px;"></div>
       </section>
 
-      <!-- Fragment List Section -->
+      <!-- Items List Section -->
       <section id="fragments-list">
-        <h3>Fragments</h3>
+        <h3>Items</h3>
         <div id="fragments-container">
           <p>Loading fragments...</p>
         </div>

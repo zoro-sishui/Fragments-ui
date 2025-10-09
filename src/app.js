@@ -13,7 +13,7 @@ async function displayFragments(user) {
     const userFragments = await getUserFragments(user);
     
     if (!userFragments || !userFragments.fragments || userFragments.fragments.length === 0) {
-      fragmentsContainer.innerHTML = '<p>No fragments yet. Create your first one above!</p>';
+      fragmentsContainer.innerHTML = '<p>No items yet. Create your first one above!</p>';
       return;
     }
 
@@ -40,8 +40,8 @@ async function displayFragments(user) {
       fragmentsContainer.appendChild(fragmentDiv);
     }
   } catch (err) {
-    fragmentsContainer.innerHTML = '<p>Error loading fragments. Please try again.</p>';
-    console.error('Error displaying fragments:', err);
+    fragmentsContainer.innerHTML = '<p>Error loading items. Please try again.</p>';
+    console.error('Error displaying items:', err);
   }
 }
 
@@ -78,8 +78,8 @@ window.viewFragment = async function(fragmentId) {
     
     console.log('Content displayed successfully');
   } catch (err) {
-    contentDiv.innerHTML = '<p style="color: red;">Error loading fragment content</p>';
-    console.error('Error viewing fragment:', err);
+    contentDiv.innerHTML = '<p style="color: red;">Error loading item content</p>';
+    console.error('Error viewing item:', err);
   }
 };
 
@@ -101,7 +101,7 @@ async function init() {
     signOut();
   };
 
-  // Handle fragment creation form
+  // Handle item creation form
   createForm.onsubmit = async (e) => {
     e.preventDefault();
     
@@ -115,33 +115,33 @@ async function init() {
     }
 
     try {
-      resultDiv.innerHTML = '<p>Creating fragment...</p>';
+      resultDiv.innerHTML = '<p>Creating item...</p>';
       
       const result = await createFragment(currentUser, content, contentType);
       
       // Show simple success message
       resultDiv.innerHTML = `
-        <div style="color: green; padding: 10px; background: #d4edda; border-radius: 4px;">
-          <strong>Fragment Created Successfully!</strong><br>
+        <div style="color: white; padding: 10px; background: #6e7f72ff; border-radius: 4px;">
+          <strong>Item Created Successfully!</strong><br>
           <strong>ID:</strong> ${result.fragment.id}<br>
-          <strong>Size: ${result.fragment.size} bytes<br>
-          <strong>Type: ${result.fragment.type}
+          <strong>Size:</strong> ${result.fragment.size} bytes<br>
+          <strong>Type:</strong> ${result.fragment.type}
         </div>
       `;
       
       // Clear the form
       document.querySelector('#fragment-content').value = '';
       
-      // Display the fragments list
+      // Display the items list
       await displayFragments(currentUser);
     } catch (err) {
       resultDiv.innerHTML = `
         <div style="color: red; padding: 10px; background: #f8d7da; border-radius: 4px;">
-          <strong> Error creating fragment</strong><br>
+          <strong>Error creating item</strong><br>
           ${err.message || 'Please try again.'}
         </div>
       `;
-      console.error('Error creating fragment:', err);
+      console.error('Error creating item:', err);
     }
   };
 
