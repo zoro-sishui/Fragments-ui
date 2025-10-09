@@ -1,12 +1,12 @@
 // src/api.js
 
-// fragments microservice API to use, defaults to localhost:8080 if not set in env
+// fragments microservice API to use, defaults to EC2 instance if not set in env
 // Handle cases where process.env might not be available in browser
 let apiUrl;
 try {
-  apiUrl = process.env.API_URL || 'http://localhost:8080';
+  apiUrl = process.env.API_URL || 'http://ec2-3-80-85-232.compute-1.amazonaws.com:8080';
 } catch (e) {
-  apiUrl = 'http://localhost:8080';
+  apiUrl = 'http://ec2-3-80-85-232.compute-1.amazonaws.com:8080';
 }
 
 // Export apiUrl for use in other modules
