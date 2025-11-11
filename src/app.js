@@ -106,12 +106,24 @@ async function init() {
     e.preventDefault();
     
     const contentType = document.querySelector('#fragment-type').value;
-    const content = document.querySelector('#fragment-content').value;
+    let content = document.querySelector('#fragment-content').value;
     const resultDiv = document.querySelector('#create-result');
     
     if (!content.trim()) {
       resultDiv.innerHTML = '<p style="color: red;">Please enter some content</p>';
       return;
+    }
+
+    // If JSON is selected, validate JSON and normalize formatting
+    if (contentType === 'application/json') {
+      try {
+        const parsed = JSON.parse(content);
+        // Re-stringify to ensure valid JSON is sent
+        content = JSON.stringify(parsed);
+      } catch (err) {
+        resultDiv.innerHTML = '<p style="color: red;">Invalid JSON. Please fix the JSON and try again.</p>';
+        return;
+      }
     }
 
     try {
