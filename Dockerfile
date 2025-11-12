@@ -14,7 +14,6 @@ RUN npm ci
 
 # Copy app sources
 COPY src ./src
-COPY README.md ./README.md
 
 # Accept build-time configuration and expose to bundler
 # These are embedded at build time by Parcel via process.env.*
