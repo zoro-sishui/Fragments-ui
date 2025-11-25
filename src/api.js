@@ -4,9 +4,9 @@
 // Handle cases where process.env might not be available in browser
 let apiUrl;
 try {
-  apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://ec2-98-84-124-81.compute-1.amazonaws.com:8080';
+  apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://fragments-lb-1039147427.us-east-1.elb.amazonaws.com';
 } catch (e) {
-  apiUrl = 'http://ec2-98-84-124-81.compute-1.amazonaws.com:8080'; 
+  apiUrl = 'http://fragments-lb-1039147427.us-east-1.elb.amazonaws.com'; 
 }
 
 // Export apiUrl for use in other modules
