@@ -42,8 +42,8 @@ function formatUser(user) {
 
 
 export async function signOut() {
-   const cognitoDomain = `https://${process.env.REACT_APP_AWS_COGNITO_POOL_ID}.auth.us-east-1.amazoncognito.com`;
-  const clientId = process.env.REACT_APP_AWS_COGNITO_CLIENT_ID;
+   const cognitoDomain = `https://${process.env.AWS_COGNITO_POOL_ID}.auth.us-east-1.amazoncognito.com`;
+  const clientId = process.env.AWS_COGNITO_CLIENT_ID;
   const logoutUri = window.location.origin;
 
   window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;

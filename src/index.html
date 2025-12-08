@@ -167,19 +167,40 @@
       <section id="create-fragment">
         <h3>Create New Item</h3>
         <form id="create-fragment-form">
-          <div>
+          
+          <div style="margin-bottom: 15px;">
             <label for="fragment-type">Content Type:</label>
-            <select id="fragment-type" required>
+            <select id="fragment-type" onchange="toggleInputMethod()">
               <option value="text/plain">Text (Plain)</option>
+              <option value="text/plain; charset=utf-8">Text (Plain; charset=utf-8)</option>
               <option value="text/markdown">Markdown (text/markdown)</option>
               <option value="text/html">HTML (text/html)</option>
+              <option value="text/csv">CSV (text/csv)</option>
               <option value="application/json">JSON (application/json)</option>
+              <option value="application/yaml">YAML (application/yaml)</option>
+              <option value="image/png">PNG Image (image/png)</option>
+              <option value="image/jpeg">JPEG Image (image/jpeg)</option>
+              <option value="image/webp">WebP Image (image/webp)</option>
+              <option value="image/gif">GIF Image (image/gif)</option>
+              <option value="image/avif">AVIF Image (image/avif)</option>
             </select>
           </div>
-          <div>
-            <label for="fragment-content">Content:</label>
-            <textarea id="fragment-content" rows="6" cols="50" placeholder="Enter content here..." required></textarea>
+
+          <div id="text-input-container">
+            <div>
+              <label for="fragment-content">Content:</label>
+              <textarea id="fragment-content" rows="6" cols="50" placeholder="Enter content here..."></textarea>
+            </div>
           </div>
+
+          <div id="file-input-container" hidden>
+            <div>
+              <label for="fragment-file">Choose File:</label>
+              <input type="file" id="fragment-file">
+            </div>
+            <button type="button" onclick="resetToDefault()" style="margin-top: 5px; background-color: #666;">Cancel / Go Back</button>
+          </div>
+
           <button type="submit">Create Item</button>
           <button type="button" id="clear-form">Clear</button>
         </form>

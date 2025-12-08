@@ -106,3 +106,88 @@ export async function getFragment(user, fragmentId) {
   }
 }
 
+/**
+ * Update an existing fragment
+ */
+export async function updateFragment(user, fragmentId, content, contentType) {
+  console.log('Updating fragment...', { fragmentId, contentType, size: content.length });
+  try {
+    const fragmentUrl = new URL(`/v1/fragments/${fragmentId}`, apiUrl);
+    const res = await fetch(fragmentUrl, {
+      method: 'PUT',
+      headers: {
+        ...user.authorizationHeaders(),
+        'Content-Type': contentType,
+      },
+      body: content,
+    });
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`${res.status} ${res.statusText}: ${errorText}`);
+    }
+    
+    const data = await res.json();
+    console.log('Successfully updated fragment', { data });
+    return data;
+  } catch (err) {
+    console.error('Unable to update fragment', { err });
+    throw err;
+  }
+}
+
+/**
+ * Delete a fragment
+ */
+export async function deleteFragment(user, fragmentId) {
+  console.log('Deleting fragment...', { fragmentId });
+  try {
+    const fragmentUrl = new URL(`/v1/fragments/${fragmentId}`, apiUrl);
+    const res = await fetch(fragmentUrl, {
+      method: 'DELETE',
+      headers: user.authorizationHeaders(),
+    });
+    
+    if (!res.ok) {
+      throw new Error(`${res.status} ${res.statusText}`);
+    }
+    
+    console.log('Successfully deleted fragment');
+    return true;
+  } catch (err) {
+    console.error('Unable to delete fragment', { err });
+    throw err;
+  }
+}
+
+/**
+ * Get converted fragment data
+ */
+export async function getFragmentConverted(user, fragmentId, extension) {
+  console.log(`Getting fragment converted to ${extension}...`);
+  try {
+    const fragmentUrl = new URL(`/v1/fragments/${fragmentId}.${extension}`, apiUrl);
+    const res = await fetch(fragmentUrl, {
+      headers: user.authorizationHeaders(),
+    });
+    
+    if (!res.ok) {
+      throw new Error(`${res.status} ${res.statusText}`);
+    }
+    
+    // Check content type to decide how to return data
+    const contentType = res.headers.get('content-type');
+    if (contentType.includes('application/json')) {
+      return await res.json();
+    } else if (contentType.startsWith('image/')) {
+      const blob = await res.blob();
+      return URL.createObjectURL(blob);
+    } else {
+      return await res.text();
+    }
+  } catch (err) {
+    console.error('Unable to get converted fragment', { err });
+    throw err;
+  }
+}
+

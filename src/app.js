@@ -1,7 +1,7 @@
 // src/app.js
 
 import { signIn, getUser, signOut } from './auth';
-import { getUserFragments, createFragment, getFragment, apiUrl } from './api';
+import { getUserFragments, createFragment, getFragment, updateFragment, deleteFragment, getFragmentConverted, apiUrl } from './api';
 
 // Global user variable
 let currentUser = null;
@@ -24,16 +24,50 @@ async function displayFragments(user) {
     for (const fragment of userFragments.fragments) {
       const fragmentDiv = document.createElement('div');
       fragmentDiv.className = 'fragment-item';
+      fragmentDiv.id = `fragment-${fragment.id}`;
       
+      // Get base type (remove charset etc)
+      const baseType = fragment.type.split(';')[0].trim();
+      
+      // Define valid conversions
+      const validConversions = {
+        'text/plain': ['txt'],
+        'text/markdown': ['md', 'html', 'txt'],
+        'text/html': ['html', 'txt'],
+        'text/csv': ['csv', 'txt', 'json'],
+        'application/json': ['json', 'yaml', 'yml', 'txt'],
+        'application/yaml': ['yaml', 'txt'],
+        'image/png': ['png', 'jpg', 'webp', 'gif', 'avif'],
+        'image/jpeg': ['png', 'jpg', 'webp', 'gif', 'avif'],
+        'image/webp': ['png', 'jpg', 'webp', 'gif', 'avif'],
+        'image/avif': ['png', 'jpg', 'webp', 'gif', 'avif'],
+        'image/gif': ['png', 'jpg', 'webp', 'gif', 'avif'],
+      };
+
+      const options = validConversions[baseType] || [];
+      const optionsHtml = options.map(ext => `<option value="${ext}">.${ext}</option>`).join('');
+
       fragmentDiv.innerHTML = `
         <div><strong>ID:</strong> ${fragment.id}</div>
         <div><strong>Type:</strong> ${fragment.type}</div>
         <div><strong>Size:</strong> ${fragment.size} bytes</div>
         <div><strong>Created:</strong> ${new Date(fragment.created).toLocaleString()}</div>
         <div><strong>Updated:</strong> ${new Date(fragment.updated).toLocaleString()}</div>
-        <div class="fragment-actions">
-          <button onclick="viewFragment('${fragment.id}')">View Content</button>
+        
+        <div class="fragment-actions" style="margin-top: 10px;">
+          <button onclick="viewFragment('${fragment.id}', '${fragment.type}')">View</button>
+          <button onclick="editFragmentHandler('${fragment.id}', '${fragment.type}')">Edit</button>
+          <button class="delete-btn" onclick="deleteFragmentHandler('${fragment.id}')">Delete</button>
         </div>
+        
+        <div class="fragment-actions" style="margin-top: 5px;">
+          <label>Convert to:</label>
+          <select id="convert-${fragment.id}" onchange="convertFragmentHandler('${fragment.id}')">
+            <option value="" disabled selected hidden>Select format</option>
+            ${optionsHtml}
+          </select>
+        </div>
+
         <div id="content-${fragment.id}"></div>
       `;
       
@@ -46,41 +80,174 @@ async function displayFragments(user) {
 }
 
 // making functions global
-window.viewFragment = async function(fragmentId) {
+window.viewFragment = async function(fragmentId, type) {
   const contentDiv = document.querySelector(`#content-${fragmentId}`);
-  console.log('Content div found:', contentDiv);
   
   try {
+    // If it's an image, we need to handle it differently
+    if (type && type.startsWith('image/')) {
+      const extension = type.split('/')[1];
+      // Use the conversion endpoint to get the image blob/url
+      // Or we could update getFragment to handle blobs.
+      // Let's use getFragmentConverted which we know handles blobs
+      const imageUrl = await getFragmentConverted(currentUser, fragmentId, extension);
+      
+      const contentContainer = document.createElement('div');
+      contentContainer.className = 'fragment-content';
+      const img = document.createElement('img');
+      img.src = imageUrl;
+      img.style.maxWidth = '100%';
+      contentContainer.appendChild(img);
+      
+      contentDiv.innerHTML = '';
+      contentDiv.appendChild(contentContainer);
+      return;
+    }
+
     const content = await getFragment(currentUser, fragmentId);
-    console.log('Fragment content retrieved:', content);
-    console.log('Content length:', content.length);
     
-    // Create a continer
+    // Create a container
     const contentContainer = document.createElement('div');
-    contentContainer.style.cssText = `
-      background: #f8f9fa; 
-      padding: 15px; 
-      margin: 10px 0; 
-      border: 1px solid #ddd; 
-      border-radius: 4px; 
-      white-space: pre-wrap; 
-      font-family: monospace;
-      min-height: 40px;
-      color: #333;
-    `;
+    contentContainer.className = 'fragment-content';
     
-    
-    contentContainer.textContent = content || '[Empty content]';
+    if (type === 'text/html') {
+        // Render HTML safely? Or just as text?
+        // If we want to render it:
+        // contentContainer.innerHTML = content;
+        // But for safety, maybe just text for now, or inside an iframe.
+        // The requirement says "view their fragments".
+        // Let's display as text code for now to be safe and consistent with "View Content"
+        contentContainer.textContent = content;
+    } else if (type === 'application/json') {
+        try {
+            contentContainer.textContent = JSON.stringify(JSON.parse(content), null, 2);
+        } catch (e) {
+            contentContainer.textContent = content;
+        }
+    } else {
+        contentContainer.textContent = content || '[Empty content]';
+    }
     
     // Clear and append
     contentDiv.innerHTML = '';
     contentDiv.appendChild(contentContainer);
     
-    console.log('Content displayed successfully');
   } catch (err) {
     contentDiv.innerHTML = '<p style="color: red;">Error loading item content</p>';
     console.error('Error viewing item:', err);
   }
+};
+
+window.deleteFragmentHandler = async function(fragmentId) {
+  if (!confirm('Are you sure you want to delete this fragment?')) {
+    return;
+  }
+  
+  try {
+    await deleteFragment(currentUser, fragmentId);
+    // Refresh the list
+    await displayFragments(currentUser);
+  } catch (err) {
+    alert('Error deleting fragment: ' + err.message);
+  }
+};
+
+window.editFragmentHandler = async function(fragmentId, type) {
+  const contentDiv = document.querySelector(`#content-${fragmentId}`);
+  
+  try {
+    const content = await getFragment(currentUser, fragmentId);
+    
+    contentDiv.innerHTML = `
+      <div style="margin-top: 10px;">
+        <textarea id="edit-content-${fragmentId}" style="width: 100%; min-height: 150px; font-family: monospace;">${content}</textarea>
+        <div style="margin-top: 5px;">
+          <button onclick="saveFragmentHandler('${fragmentId}', '${type}')">Save Changes</button>
+          <button onclick="viewFragment('${fragmentId}', '${type}')">Cancel</button>
+        </div>
+      </div>
+    `;
+  } catch (err) {
+    alert('Error loading fragment for editing: ' + err.message);
+  }
+};
+
+window.saveFragmentHandler = async function(fragmentId, type) {
+  const newContent = document.querySelector(`#edit-content-${fragmentId}`).value;
+  
+  try {
+    await updateFragment(currentUser, fragmentId, newContent, type);
+    alert('Fragment updated successfully!');
+    // Refresh the list to show updated metadata
+    await displayFragments(currentUser);
+    // Re-open the view
+    await window.viewFragment(fragmentId, type);
+  } catch (err) {
+    alert('Error updating fragment: ' + err.message);
+  }
+};
+
+window.convertFragmentHandler = async function(fragmentId) {
+  const select = document.querySelector(`#convert-${fragmentId}`);
+  const extension = select.value;
+  if (!extension) return;
+  
+  const contentDiv = document.querySelector(`#content-${fragmentId}`);
+  contentDiv.innerHTML = '<p>Converting...</p>';
+  
+  try {
+    const content = await getFragmentConverted(currentUser, fragmentId, extension);
+    
+    const contentContainer = document.createElement('div');
+    contentContainer.className = 'fragment-content';
+    
+    if (extension === 'png' || extension === 'jpg' || extension === 'webp' || extension === 'gif' || extension === 'avif') {
+      const img = document.createElement('img');
+      img.src = content;
+      img.style.maxWidth = '100%';
+      contentContainer.innerHTML = '';
+      contentContainer.appendChild(img);
+    } else if (extension === 'html') {
+       // For HTML conversion, we might want to render it
+       contentContainer.innerHTML = content;
+    } else if (typeof content === 'object') {
+      contentContainer.textContent = JSON.stringify(content, null, 2);
+    } else {
+      contentContainer.textContent = content;
+    }
+    
+    contentDiv.innerHTML = '';
+    contentDiv.appendChild(contentContainer);
+    
+    // Reset select
+    select.value = '';
+  } catch (err) {
+    contentDiv.innerHTML = `<p style="color: red;">Error converting fragment: ${err.message}</p>`;
+  }
+};
+
+window.toggleInputMethod = function() {
+  const contentType = document.querySelector('#fragment-type').value;
+  const textContainer = document.querySelector('#text-input-container');
+  const fileContainer = document.querySelector('#file-input-container');
+  
+  if (contentType.startsWith('image/')) {
+    textContainer.hidden = true;
+    fileContainer.hidden = false;
+    document.querySelector('#fragment-content').required = false;
+    document.querySelector('#fragment-file').required = true;
+    document.querySelector('#fragment-file').accept = contentType;
+  } else {
+    textContainer.hidden = false;
+    fileContainer.hidden = true;
+    document.querySelector('#fragment-content').required = true;
+    document.querySelector('#fragment-file').required = false;
+  }
+};
+
+window.resetToDefault = function() {
+  document.querySelector('#fragment-type').value = 'text/plain';
+  window.toggleInputMethod();
 };
 
 async function init() {
@@ -106,23 +273,37 @@ async function init() {
     e.preventDefault();
     
     const contentType = document.querySelector('#fragment-type').value;
-    let content = document.querySelector('#fragment-content').value;
     const resultDiv = document.querySelector('#create-result');
     
-    if (!content.trim()) {
-      resultDiv.innerHTML = '<p style="color: red;">Please enter some content</p>';
-      return;
-    }
-
-    // If JSON is selected, validate JSON and normalize formatting
-    if (contentType === 'application/json') {
-      try {
-        const parsed = JSON.parse(content);
-        // Re-stringify to ensure valid JSON is sent
-        content = JSON.stringify(parsed);
-      } catch (err) {
-        resultDiv.innerHTML = '<p style="color: red;">Invalid JSON. Please fix the JSON and try again.</p>';
+    let content;
+    
+    if (contentType.startsWith('image/')) {
+      // File upload
+      const fileInput = document.querySelector('#fragment-file');
+      if (fileInput.files.length === 0) {
+        resultDiv.innerHTML = '<p style="color: red;">Please select a file</p>';
         return;
+      }
+      content = fileInput.files[0];
+    } else {
+      // Text input
+      content = document.querySelector('#fragment-content').value;
+      
+      if (!content.trim()) {
+        resultDiv.innerHTML = '<p style="color: red;">Please enter some content</p>';
+        return;
+      }
+
+      // If JSON is selected, validate JSON and normalize formatting
+      if (contentType === 'application/json') {
+        try {
+          const parsed = JSON.parse(content);
+          // Re-stringify to ensure valid JSON is sent
+          content = JSON.stringify(parsed);
+        } catch (err) {
+          resultDiv.innerHTML = '<p style="color: red;">Invalid JSON. Please fix the JSON and try again.</p>';
+          return;
+        }
       }
     }
 
@@ -143,6 +324,7 @@ async function init() {
       
       // Clear the form
       document.querySelector('#fragment-content').value = '';
+      document.querySelector('#fragment-file').value = '';
       
       // Display the items list
       await displayFragments(currentUser);
@@ -160,6 +342,7 @@ async function init() {
   // Handle clear form button
   document.querySelector('#clear-form').onclick = () => {
     document.querySelector('#fragment-content').value = '';
+    document.querySelector('#fragment-file').value = '';
     document.querySelector('#create-result').innerHTML = '';
   };
 
