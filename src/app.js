@@ -84,12 +84,8 @@ window.viewFragment = async function(fragmentId, type) {
   const contentDiv = document.querySelector(`#content-${fragmentId}`);
   
   try {
-    // If it's an image, we need to handle it differently
     if (type && type.startsWith('image/')) {
       const extension = type.split('/')[1];
-      // Use the conversion endpoint to get the image blob/url
-      // Or we could update getFragment to handle blobs.
-      // Let's use getFragmentConverted which we know handles blobs
       const imageUrl = await getFragmentConverted(currentUser, fragmentId, extension);
       
       const contentContainer = document.createElement('div');
@@ -106,17 +102,11 @@ window.viewFragment = async function(fragmentId, type) {
 
     const content = await getFragment(currentUser, fragmentId);
     
-    // Create a container
+    
     const contentContainer = document.createElement('div');
     contentContainer.className = 'fragment-content';
     
     if (type === 'text/html') {
-        // Render HTML safely? Or just as text?
-        // If we want to render it:
-        // contentContainer.innerHTML = content;
-        // But for safety, maybe just text for now, or inside an iframe.
-        // The requirement says "view their fragments".
-        // Let's display as text code for now to be safe and consistent with "View Content"
         contentContainer.textContent = content;
     } else if (type === 'application/json') {
         try {
@@ -208,7 +198,6 @@ window.convertFragmentHandler = async function(fragmentId) {
       contentContainer.innerHTML = '';
       contentContainer.appendChild(img);
     } else if (extension === 'html') {
-       // For HTML conversion, we might want to render it
        contentContainer.innerHTML = content;
     } else if (typeof content === 'object') {
       contentContainer.textContent = JSON.stringify(content, null, 2);
@@ -219,7 +208,6 @@ window.convertFragmentHandler = async function(fragmentId) {
     contentDiv.innerHTML = '';
     contentDiv.appendChild(contentContainer);
     
-    // Reset select
     select.value = '';
   } catch (err) {
     contentDiv.innerHTML = `<p style="color: red;">Error converting fragment: ${err.message}</p>`;
@@ -257,9 +245,9 @@ async function init() {
   const logoutBtn = document.querySelector('#logout');
   const createForm = document.querySelector('#create-fragment-form');
 
-  //  event handlers to deal with login and logout.
+  
   loginBtn.onclick = () => {
-    // Sign-in via the Amazon Cognito Hosted UI 
+    // Sign in the user
     signIn();
   };
 
@@ -294,11 +282,10 @@ async function init() {
         return;
       }
 
-      // If JSON is selected, validate JSON and normalize formatting
+    
       if (contentType === 'application/json') {
         try {
           const parsed = JSON.parse(content);
-          // Re-stringify to ensure valid JSON is sent
           content = JSON.stringify(parsed);
         } catch (err) {
           resultDiv.innerHTML = '<p style="color: red;">Invalid JSON. Please fix the JSON and try again.</p>';
